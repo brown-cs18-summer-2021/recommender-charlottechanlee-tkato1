@@ -4,12 +4,10 @@ import src.IAttributeDatum;
 import src.ITreeNode;
 
 public class Leaf implements ITreeNode {
-    public Object attributeValuePrevious;
 
     public Object attributeValue;
 
-    public Leaf(Object attributeValuePrevious, Object attributeValue) {
-        this.attributeValuePrevious = attributeValuePrevious;
+    public Leaf(Object attributeValue) {
 
         this.attributeValue = attributeValue;
 

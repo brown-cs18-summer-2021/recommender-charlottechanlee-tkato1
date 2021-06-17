@@ -128,4 +128,3 @@ public class RecommenderTestSuite<T extends IAttributeDatum> {
         Tester.run(new RecommenderTestSuite());
     }
 }
-

@@ -23,26 +23,34 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     @Override
     public ITreeNode buildClassifier(String targetAttribute) {
-        this.trainingData.getAttributes().remove(targetAttribute);
+        if (this.trainingData.getAttributes().contains(targetAttribute)) {
+            this.trainingData.getAttributes().remove(targetAttribute);
+        }
+
         Random random = new Random();
-        int upperBound = trainingData.getAttributes().size() - 1;
+        int upperBound = trainingData.getAttributes().size();
         int randomNum = random.nextInt(upperBound);
         LinkedList<Edge> listOfEdges = new LinkedList<Edge>();
-        Node root = new Node(trainingData.getAttributes().get(randomNum), this.trainingData.mostCommonValue(targetAttribute),
+        String currentAttribute = trainingData.getAttributes().get(randomNum);
+        Node newNode = new Node(currentAttribute, this.trainingData.mostCommonValue(targetAttribute),
        listOfEdges);
         LinkedList<IAttributeDataset<T>> partList = (LinkedList<IAttributeDataset<T>>)
-                this.trainingData.partition(this.trainingData.getAttributes().get(randomNum));
+                this.trainingData.partition(currentAttribute);
         int x = partList.size();
 
         for (int i = 0; i <= x; i++) {
-            listOfEdges.add(partList.get(i).get(0));
+            if (partList.get(i).allSameValue(targetAttribute)) {
+                listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
+                        new Leaf(partList.get(i).getSharedValue(targetAttribute))));
+            } else if (this.trainingData.getAttributes().size() == 0) {
+                listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
+                        new Leaf(partList.get(i).mostCommonValue(targetAttribute))));
+            } else {
+                this.trainingData.getAttributes().remove(currentAttribute);
+                buildClassifier(targetAttribute);
+            }
         }
-
-        // adjust upperbound to -1 because random is 0 inclusive when upperBound = # attributes
-        for (int i = 0; i <= upperBound; i++) {
-
-        }
-
+        return newNode;
     }
 
     @Override
