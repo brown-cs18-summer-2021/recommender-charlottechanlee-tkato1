@@ -6,38 +6,34 @@ import src.ITreeNode;
 import java.util.LinkedList;
 
 public class Node implements ITreeNode{
-    public Object attributeValuePrevious;
 
     public String attribute;
 
     public Object mostCommon;
 
-    //make list of class edge
-    public LinkedList<ITreeNode> children;
+    public LinkedList<Edge> edgeList;
 
-    public Node(Object attributeValuePrevious, String attribute, Object mostCommon, LinkedList<ITreeNode> children) {
-        this.attributeValuePrevious = attributeValuePrevious;
+    public Node(String attribute, Object mostCommon, LinkedList<Edge> edgeList) {
 
         this.attribute = attribute;
 
         this.mostCommon = mostCommon;
 
-        this.children = children;
+        this.edgeList = edgeList;
     }
 
 
     @Override
     public Object lookupDecision(IAttributeDatum datum) {
-        int x = this.children.size();
+        int x = this.edgeList.size();
         //could edit interface to include getAttributeValuePrevious
         //cant edit interface, create class that stores attribute value and node, edge class
         //
         for (int i = 0; i <= x; i++) {
-            if (datum.getValueOf(this.attribute).equals(this.children.get(i).attributeValuePrevious)) {
-                this.children.get(i).lookupDecision(datum);
+            if (datum.getValueOf(this.attribute).equals(this.edgeList.get(i).edgeVal)) {
+                this.edgeList.get(i).nextNode.lookupDecision(datum);
             }
         }
-
         return this.mostCommon;
     }
 
