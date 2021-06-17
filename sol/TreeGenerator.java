@@ -22,11 +22,11 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     @Override
     public ITreeNode buildClassifier(String targetAttribute) {
-        this.trainingData.attributes.remove(targetAttribute);
+        this.trainingData.getAttributes().remove(targetAttribute);
         Random random = new Random();
-        int upperBound = trainingData.attributes.size() - 1;
+        int upperBound = trainingData.getAttributes().size() - 1;
         this.trainingData.mostCommonValue;
-        Node root = new Node(null; trainingData.attributes.get(randomNum), this.trainingData.mostCommonValue;
+        Node root = new Node(null; trainingData.getAttributes()).get(randomNum), this.trainingData.mostCommonValue;
         int randomNum = random.nextInt(upperBound);
         // adjust upperbound to -1 because random is 0 inclusive when upperBound = # attributes
         for (int i = 0; i <= upperBound; i++) {
