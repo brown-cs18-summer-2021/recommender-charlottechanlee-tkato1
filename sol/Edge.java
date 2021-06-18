@@ -6,9 +6,9 @@ public class Edge {
     public Object edgeVal;
     public ITreeNode nextNode;
 
-    public Edge (Object e, ITreeNode n) {
-        this.edgeVal = e;
-        this.nextNode = n;
+    public Edge (Object edgeVal, ITreeNode nextNode) {
+        this.edgeVal = edgeVal;
+        this.nextNode = nextNode;
     }
 
     public ITreeNode getNext() {

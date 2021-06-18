@@ -52,7 +52,7 @@ public class Vegetable implements IAttributeDatum {
         } else if (attributeName.equals("likeToEat")) {
             return this.likeToEat;
         } else {
-            throw new RuntimeException("vegetable object does not have " + attributeName + "attribute");
+            throw new RuntimeException("vegetable object does not have " + attributeName + " attribute");
         }
     }
 

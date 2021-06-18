@@ -6,6 +6,7 @@ import src.ITreeGenerator;
 import src.ITreeNode;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator {
@@ -20,6 +21,9 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
      *                     decision tree
      */
     public TreeGenerator(IAttributeDataset<T> trainingData) {
+        if (trainingData.size() == 0) {
+            throw new IllegalArgumentException("trainingData is empty");
+        }
 
         this.trainingData = trainingData;
 
@@ -27,48 +31,51 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     }
 
+
+    public ITreeNode buildClassifierHelper(String targetAttribute, IAttributeDataset<T> subset) {
+        if (subset.getAttributes().contains(targetAttribute)) {
+            subset.getAttributes().remove(targetAttribute);
+        }
+        List<String> attributeList = new LinkedList<String>(subset.getAttributes());
+
+        if (subset.allSameValue(targetAttribute)) {
+            return new Leaf(subset.getSharedValue(targetAttribute));
+        }
+        // base case: if there are no more unused attributes, return the most common value of the target attribute
+        else if (attributeList.size() == 0) {
+            return new Leaf(subset.mostCommonValue(targetAttribute));
+
+            // there are still unused attributes
+        } else {
+            LinkedList<Edge> edgeList = new LinkedList<Edge>();
+            // construct a new node for the randomly chosen attribute (edge list initialized to zero)
+            Random random = new Random();
+            int upperBound = attributeList.size();
+            int randomNum = random.nextInt(upperBound);
+            String currentAttribute = attributeList.get(randomNum);
+            Node newNode = new Node(currentAttribute, subset.mostCommonValue(targetAttribute), edgeList);
+
+            // loop through the list of partitioned data sets to fill the list of edges
+            List<IAttributeDataset<T>> partList = subset.partition(currentAttribute);
+
+            // must create a new edge for every value that falls under the attribute
+            for (int i = 0; i < partList.size(); i++) {
+                Edge newEdge = new Edge(partList.get(i).getSharedValue(currentAttribute),
+                        buildClassifierHelper(targetAttribute, partList.get(i)));
+                edgeList.add(newEdge);
+            }
+            return newNode;
+        }
+
+    }
+
     @Override
     public ITreeNode buildClassifier(String targetAttribute) {
-        if (this.trainingData.getAttributes().contains(targetAttribute)) {
-            this.trainingData.getAttributes().remove(targetAttribute);
-        }
+        this.root = buildClassifierHelper(targetAttribute, this.trainingData);
 
-        Random random = new Random();
-        int upperBound = this.trainingData.getAttributes().size();
-
-        int randomNum = 0;
-
-        if (upperBound != 0) {
-            randomNum = random.nextInt(upperBound);
-        } else {
-            return null;
-        }
-
-        LinkedList<Edge> listOfEdges = new LinkedList<>();
-        String currentAttribute = trainingData.getAttributes().get(randomNum);
-        Node newNode = new Node(currentAttribute, this.trainingData.mostCommonValue(targetAttribute),
-       listOfEdges);
-        LinkedList<IAttributeDataset<T>> partList =  (LinkedList<IAttributeDataset<T>>)
-                this.trainingData.partition(currentAttribute);
-        int x = partList.size();
-
-        for (int i = 0; i < x; i++) {
-            if (partList.get(i).allSameValue(targetAttribute)) {
-                listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
-                        new Leaf(partList.get(i).getSharedValue(targetAttribute))));
-            // } else if (partList.get(i).getAttributes().size() == 0) {
-             } else if (this.trainingData.getAttributes().size() == 0) {
-                listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
-                        new Leaf(partList.get(i).mostCommonValue(targetAttribute))));
-            } else {
-                this.trainingData.getAttributes().remove(currentAttribute);
-                listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
-                        buildClassifier(targetAttribute)));
-            }
-        }
-        this.root = newNode;
-        return newNode;
+        return this.root;
     }
+
 
     @Override
     public Object lookupRecommendation(IAttributeDatum datum) {
@@ -77,6 +84,6 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     @Override
     public void printTree() {
-        // TODO: implement
+        this.root.printNode("   ");
     }
 }

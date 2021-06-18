@@ -43,14 +43,13 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
         int x = this.size();
         Object attributeValue = this.dataObjects.get(0).getValueOf(ofAttribute);
         for (int i = 1; i < x; i++) {
-            if (this.dataObjects.get(i).getValueOf(ofAttribute).equals(attributeValue)) {
-                i = i + 1;
-            } else {
+            if (!this.dataObjects.get(i).getValueOf(ofAttribute).equals(attributeValue)) {
                 return false;
             }
         }
         return true;
     }
+
 
     @Override
     public Object getSharedValue(String ofAttribute) {
@@ -77,6 +76,7 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
                 attributeValueCounts.addLast(0);
             }
         }
+
         int y = attributeValues.size();
         Integer mostCommonCount = attributeValueCounts.get(0);
         Object mostCommon = attributeValues.get(0);
@@ -84,6 +84,7 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
             if (attributeValueCounts.get(j) > mostCommonCount) {
                 mostCommonCount = attributeValueCounts.get(j);
                 mostCommon = attributeValues.get(j);
+
             }
         }
         return mostCommon;
