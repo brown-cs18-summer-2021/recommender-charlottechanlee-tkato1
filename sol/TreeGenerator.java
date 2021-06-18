@@ -12,13 +12,19 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     public IAttributeDataset<T> trainingData;
 
+    public ITreeNode root;
+
     /**
      * Constructor for a tree generator.
      * @param trainingData the training data on which to train the
      *                     decision tree
      */
     public TreeGenerator(IAttributeDataset<T> trainingData) {
+
         this.trainingData = trainingData;
+
+        this.root = null;
+
     }
 
     @Override
@@ -28,35 +34,45 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
         }
 
         Random random = new Random();
-        int upperBound = trainingData.getAttributes().size();
-        int randomNum = random.nextInt(upperBound);
-        LinkedList<Edge> listOfEdges = new LinkedList<Edge>();
+        int upperBound = this.trainingData.getAttributes().size();
+
+        int randomNum = 0;
+
+        if (upperBound != 0) {
+            randomNum = random.nextInt(upperBound);
+        } else {
+            return null;
+        }
+
+        LinkedList<Edge> listOfEdges = new LinkedList<>();
         String currentAttribute = trainingData.getAttributes().get(randomNum);
         Node newNode = new Node(currentAttribute, this.trainingData.mostCommonValue(targetAttribute),
        listOfEdges);
-        LinkedList<IAttributeDataset<T>> partList = (LinkedList<IAttributeDataset<T>>)
+        LinkedList<IAttributeDataset<T>> partList =  (LinkedList<IAttributeDataset<T>>)
                 this.trainingData.partition(currentAttribute);
         int x = partList.size();
 
-        for (int i = 0; i <= x; i++) {
+        for (int i = 0; i < x; i++) {
             if (partList.get(i).allSameValue(targetAttribute)) {
                 listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
                         new Leaf(partList.get(i).getSharedValue(targetAttribute))));
-            } else if (this.trainingData.getAttributes().size() == 0) {
+            // } else if (partList.get(i).getAttributes().size() == 0) {
+             } else if (this.trainingData.getAttributes().size() == 0) {
                 listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
                         new Leaf(partList.get(i).mostCommonValue(targetAttribute))));
             } else {
                 this.trainingData.getAttributes().remove(currentAttribute);
-                buildClassifier(targetAttribute);
+                listOfEdges.add(new Edge(partList.get(i).getSharedValue(currentAttribute),
+                        buildClassifier(targetAttribute)));
             }
         }
+        this.root = newNode;
         return newNode;
     }
 
     @Override
     public Object lookupRecommendation(IAttributeDatum datum) {
-        // TODO: implement
-        return null;
+        return this.root.lookupDecision(datum);
     }
 
     @Override

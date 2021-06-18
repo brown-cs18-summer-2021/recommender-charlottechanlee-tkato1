@@ -29,7 +29,7 @@ public class Node implements ITreeNode{
         //could edit interface to include getAttributeValuePrevious
         //cant edit interface, create class that stores attribute value and node, edge class
         //
-        for (int i = 0; i <= x; i++) {
+        for (int i = 0; i < x; i++) {
             if (datum.getValueOf(this.attribute).equals(this.edgeList.get(i).edgeVal)) {
                 this.edgeList.get(i).nextNode.lookupDecision(datum);
             }

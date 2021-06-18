@@ -13,11 +13,11 @@ import java.util.List;
 
 public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T> {
 
-     LinkedList<String> attributes;
-     LinkedList<T> dataObjects;
+     List<String> attributes;
+     List<T> dataObjects;
 
 
-    public DataTable(LinkedList<String> attributes, LinkedList<T> dataObjects) {
+    public DataTable(List<String> attributes, List<T> dataObjects) {
         this.attributes = attributes;
 
         this.dataObjects = dataObjects;
@@ -42,7 +42,7 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
     public boolean allSameValue(String ofAttribute) {
         int x = this.size();
         Object attributeValue = this.dataObjects.get(0).getValueOf(ofAttribute);
-        for (int i = 1; i <= x; i++) {
+        for (int i = 1; i < x; i++) {
             if (this.dataObjects.get(i).getValueOf(ofAttribute).equals(attributeValue)) {
                 i = i + 1;
             } else {
@@ -67,10 +67,11 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
         int x = this.dataObjects.size();
         LinkedList<Object> attributeValues = new LinkedList<>();
         LinkedList<Integer> attributeValueCounts = new LinkedList<>();
-        for (int i = 0; i <= x; i++) {
-            if (attributeValues.contains(this.dataObjects.get(i).getValueOf(ofAttribute))) {
-                Integer currentCount = attributeValueCounts.get(attributeValues.indexOf(ofAttribute));
-                attributeValueCounts.set(attributeValues.indexOf(ofAttribute), currentCount + 1);
+        for (int i = 0; i < x; i++) {
+            Object currentAttributeValue = this.dataObjects.get(i).getValueOf(ofAttribute);
+            if (attributeValues.contains(currentAttributeValue)) {
+                Integer currentCount = attributeValueCounts.get(attributeValues.indexOf(currentAttributeValue));
+                attributeValueCounts.set(attributeValues.indexOf(currentAttributeValue), currentCount + 1);
             } else {
                 attributeValues.addLast(this.dataObjects.get(i).getValueOf(ofAttribute));
                 attributeValueCounts.addLast(0);
@@ -79,7 +80,7 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
         int y = attributeValues.size();
         Integer mostCommonCount = attributeValueCounts.get(0);
         Object mostCommon = attributeValues.get(0);
-        for (int j = 1; j <= y; j++) {
+        for (int j = 1; j < y; j++) {
             if (attributeValueCounts.get(j) > mostCommonCount) {
                 mostCommonCount = attributeValueCounts.get(j);
                 mostCommon = attributeValues.get(j);
@@ -96,11 +97,11 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
         int x = this.dataObjects.size();
         LinkedList<IAttributeDataset<T>> outputList = new LinkedList<>();
 
-        for (int i = 0; i <= x; i++) {
+        for (int i = 0; i < x; i++) {
             T currentDatum = this.dataObjects.get(i);
             int outputSize = outputList.size();
             boolean alreadyAdded = false;
-            for (int j = 0; j <= outputSize; j++) {
+            for (int j = 0; j < outputSize; j++) {
                 Object currentSetValue = outputList.get(j).getDataObjects().get(0).getValueOf(onAttribute);
                 if (currentSetValue.equals(currentDatum.getValueOf(onAttribute))) {
                     outputList.get(j).getDataObjects().add(currentDatum);
@@ -111,10 +112,13 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
             if (!alreadyAdded) {
                 LinkedList<T> newObjectList = new LinkedList<T>();
                 newObjectList.addLast(this.dataObjects.get(i));
-                DataTable<T> newSet = new DataTable<>(this.attributes, newObjectList);
+                List<String> attributeCopy = new LinkedList<>(this.attributes);
+                attributeCopy.remove(onAttribute);
+                DataTable<T> newSet = new DataTable<>(attributeCopy, newObjectList);
                 outputList.addLast(newSet);
             }
         }
+
         return outputList;
     }
 
