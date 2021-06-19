@@ -24,7 +24,7 @@ public class Vegetable implements IAttributeDatum {
     boolean likeToEat;
 
     /**
-     *
+     *Constructor for Vegetable
      * @param color - color of vegetable as a string
      * @param lowCarb - whether the vegetable is low carbohydrate in boolean
      * @param highFiber - whether the vegetable is high in fiber in boolean

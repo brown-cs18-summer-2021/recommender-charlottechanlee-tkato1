@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.Random;
 
 public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator {
-
+    /**
+     * IAttributeDataset<T> which is the dataset used to build the decision tree.
+     */
     public IAttributeDataset<T> trainingData;
-
+    /**
+     * ITreeNode which represents the root (top Node) of the decision tree.
+     */
     public ITreeNode root;
 
     /**
@@ -31,7 +35,13 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     }
 
-
+    /**
+     * method to make a ITreeNode which is either a Node or Lead from input dataset
+     *
+     * @param targetAttribute - the attribute the Tree is based on (the attribute the tree is predicting)
+     * @param subset - input of type IAttributeDataset<T> that is the dataset used to make the output Node or Leaf
+     * @return - An ITreeNode based on input subset
+     */
     public ITreeNode buildClassifierHelper(String targetAttribute, IAttributeDataset<T> subset) {
         if (subset.getAttributes().contains(targetAttribute)) {
             subset.getAttributes().remove(targetAttribute);
@@ -40,11 +50,9 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
         if (subset.allSameValue(targetAttribute)) {
             return new Leaf(subset.getSharedValue(targetAttribute));
-        }
         // base case: if there are no more unused attributes, return the most common value of the target attribute
-        else if (attributeList.size() == 0) {
+        } else if (attributeList.size() == 0) {
             return new Leaf(subset.mostCommonValue(targetAttribute));
-
             // there are still unused attributes
         } else {
             LinkedList<Edge> edgeList = new LinkedList<Edge>();
@@ -64,9 +72,9 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
                         buildClassifierHelper(targetAttribute, partList.get(i)));
                 edgeList.add(newEdge);
             }
+
             return newNode;
         }
-
     }
 
     @Override
@@ -79,6 +87,7 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
 
     @Override
     public Object lookupRecommendation(IAttributeDatum datum) {
+
         return this.root.lookupDecision(datum);
     }
 
@@ -86,4 +95,5 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
     public void printTree() {
         this.root.printNode("   ");
     }
+
 }

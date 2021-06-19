@@ -7,14 +7,30 @@ import src.TestAccuracy;
 
 import java.util.LinkedList;
 
+/**
+ * class representing a Node which implements ITreeNode
+ */
+
 public class Node implements ITreeNode{
-
+    /**
+     * String representing the attribute the Edges of the Node is being partitioned based on.
+     */
     public String attribute;
-
+    /**
+     * Object representing the mostCommon value of the target Attribute the Node is based on
+     */
     public Object mostCommon;
-
+    /**
+     * A list of Edges which the Node splits into. (aka the children of the Node).
+     */
     public LinkedList<Edge> edgeList;
 
+    /**
+     * Constructor for Node
+     * @param attribute - String representing the attribute the Edges of the Node is being partitioned based on
+     * @param mostCommon - most common value of the target Attribute Node is based on
+     * @param edgeList - list of Edges (children) of the Node
+     */
     public Node(String attribute, Object mostCommon, LinkedList<Edge> edgeList) {
 
         this.attribute = attribute;
@@ -28,15 +44,20 @@ public class Node implements ITreeNode{
     @Override
     public Object lookupDecision(IAttributeDatum datum) {
         int x = this.edgeList.size();
-        //could edit interface to include getAttributeValuePrevious
-        //cant edit interface, create class that stores attribute value and node, edge class
-        //
+        boolean edgeMatched = false;
+        Object decision = null;
+
         for (int i = 0; i < x; i++) {
             if (datum.getValueOf(this.attribute).equals(this.edgeList.get(i).edgeVal)) {
-                this.edgeList.get(i).nextNode.lookupDecision(datum);
+                edgeMatched = true;
+                decision = this.edgeList.get(i).nextNode.lookupDecision(datum);
             }
         }
-        return this.mostCommon;
+        if (!edgeMatched) {
+            decision = this.mostCommon;
+        }
+
+        return decision;
     }
 
     @Override
@@ -49,35 +70,7 @@ public class Node implements ITreeNode{
             System.out.print(leadSpace);
             this.edgeList.get(i).nextNode.printNode(leadSpace + leadSpace);
         }
-
     }
 
-    // uncomment below to use printNode on root node
-
-    public static void main(String[] args) {
-        Vegetable spinach = new Vegetable("green", true, true, false);
-        Vegetable kale = new Vegetable("green", true, true, true);
-        Vegetable peas = new Vegetable("green", false, true, true);
-        Vegetable carrot = new Vegetable("orange", false, false, false);
-        Vegetable lettuce = new Vegetable("green", true, false, true);
-        LinkedList<String> heading = new LinkedList<String>();
-        heading.addLast("color");
-        heading.addLast("lowCarb");
-        heading.addLast("highFiber");
-        heading.addLast("likeToEat");
-        LinkedList<Object> objects = new LinkedList<Object>();
-        objects.addLast(spinach);
-        objects.addLast(kale);
-        objects.addLast(peas);
-        objects.addLast(carrot);
-        objects.addLast(lettuce);
-        DataTable testingDataTableLarge = new DataTable(heading, objects);
-        TreeGenerator<Vegetable> tree = new TreeGenerator<>(testingDataTableLarge);
-        tree.buildClassifier("likeToEat");
-        // tree.printTree();
-
-        Vegetable cabbage = new Vegetable("yellow", true, false, true);
-        tree.lookupRecommendation(cabbage);
-    }
 }
 
